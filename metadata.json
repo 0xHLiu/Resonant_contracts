@@ -1,0 +1,146 @@
+{
+  "name": "Resonant_contracts",
+  "description": "On-chain contracts for confidential token distribution on Oasis Protocol using Sapphire",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/Resonant_contracts.git"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "oasis-protocol",
+    "sapphire",
+    "confidential-computing",
+    "token-distribution",
+    "voice-talent",
+    "hardhat"
+  ],
+  "author": "Resonant Team",
+  "license": "MIT",
+  "project": {
+    "type": "smart-contracts",
+    "blockchain": "Oasis Protocol",
+    "network": "Sapphire",
+    "language": "Solidity",
+    "framework": "Hardhat"
+  },
+  "contracts": {
+    "TokenDistributor": {
+      "file": "contracts/TokenDistributor.sol",
+      "description": "Confidential token distribution contract for voice talent and protocol revenue sharing",
+      "features": [
+        "Confidential computing with Sapphire",
+        "90% distribution to voice talent",
+        "10% distribution to protocol",
+        "Support for ERC20 and native tokens",
+        "Encrypted data storage",
+        "Distribution tracking"
+      ],
+      "distribution": {
+        "voiceTalentPercentage": 90,
+        "protocolPercentage": 10
+      },
+      "functions": [
+        "distributeTokens",
+        "distributeNativeTokens",
+        "getDistributionData",
+        "getEncryptedDistributionData"
+      ]
+    },
+    "TestToken": {
+      "file": "contracts/TestToken.sol",
+      "description": "Test ERC20 token for development and testing purposes"
+    },
+    "Lock": {
+      "file": "contracts/Lock.sol",
+      "description": "Basic time-lock contract for demonstration purposes"
+    }
+  },
+  "networks": {
+    "sapphire": {
+      "name": "Sapphire Mainnet",
+      "url": "https://sapphire.oasis.io",
+      "chainId": "0x5afe",
+      "description": "Oasis Protocol Sapphire mainnet"
+    },
+    "sapphire-testnet": {
+      "name": "Sapphire Testnet",
+      "url": "https://testnet.sapphire.oasis.io",
+      "chainId": "0x5aff",
+      "description": "Oasis Protocol Sapphire testnet"
+    },
+    "sapphire-localnet": {
+      "name": "Sapphire Localnet",
+      "url": "http://localhost:8545",
+      "chainId": "0x5afd",
+      "description": "Local development network"
+    }
+  },
+  "dependencies": {
+    "hardhat": "^2.25.0",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@oasisprotocol/sapphire-hardhat": "^2.22.2",
+    "@oasisprotocol/sapphire-contracts": "^0.2.14",
+    "@openzeppelin/contracts": "^5.0.0"
+  },
+  "solidity": {
+    "version": "0.8.28",
+    "settings": {
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      }
+    }
+  },
+  "scripts": {
+    "check-balance": "scripts/check-balance.ts"
+  },
+  "tasks": {
+    "token-distributor": "tasks/token-distributor.ts"
+  },
+  "testing": {
+    "framework": "Hardhat",
+    "testFiles": [
+      "test/TokenDistributor.ts"
+    ]
+  },
+  "deployment": {
+    "ignition": {
+      "modules": [
+        "ignition/modules/Lock.ts"
+      ]
+    },
+    "deploymentInfo": "deployment.txt"
+  },
+  "security": {
+    "features": [
+      "Confidential computing",
+      "Encrypted data storage",
+      "Access control",
+      "Input validation"
+    ],
+    "audit": "Not audited - Use at your own risk"
+  },
+  "documentation": {
+    "readme": "README.md",
+    "contracts": "Comprehensive NatSpec documentation in Solidity files"
+  },
+  "development": {
+    "setup": [
+      "npm install",
+      "Set PRIVATE_KEY environment variable for deployment",
+      "Use 'npx hardhat compile' to compile contracts",
+      "Use 'npx hardhat test' to run tests"
+    ],
+    "deployment": [
+      "Configure network in hardhat.config.ts",
+      "Set protocol address in TokenDistributor constructor",
+      "Deploy using Hardhat or Ignition"
+    ]
+  },
+  "contributing": {
+    "guidelines": "Please follow standard Solidity development practices",
+    "testing": "All new features should include comprehensive tests"
+  }
+} 
