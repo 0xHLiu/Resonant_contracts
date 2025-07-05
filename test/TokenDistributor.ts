@@ -18,9 +18,9 @@ describe("TokenDistributor", function () {
     // Mint tokens to user
     await testToken.connect(owner).mint(user.address, ethers.parseEther("100"));
 
-    // Deploy TokenDistributor
+    // Deploy TokenDistributor with protocol.address as protocolAddress
     TokenDistributor = await ethers.getContractFactory("TokenDistributor", owner);
-    distributor = await TokenDistributor.deploy(voiceTalent.address, protocol.address);
+    distributor = await TokenDistributor.deploy(protocol.address);
     await distributor.waitForDeployment();
   });
 
@@ -29,8 +29,9 @@ describe("TokenDistributor", function () {
     const voiceTalentBalanceBefore = await ethers.provider.getBalance(voiceTalent.address);
     const protocolBalanceBefore = await ethers.provider.getBalance(protocol.address);
 
-    // User sends native tokens
+    // User sends native tokens with voiceTalent address as parameter
     await distributor.connect(user).distributeNativeTokens(
+      voiceTalent.address, // voiceTalentAddress parameter
       ethers.ZeroHash, // confidentialId
       { value: amount }
     );
@@ -48,9 +49,10 @@ describe("TokenDistributor", function () {
     await testToken.connect(owner).mint(user.address, amount);
     // User approves distributor
     await testToken.connect(user).approve(distributor.target, amount);
-    // User calls distributeTokens
+    // User calls distributeTokens with voiceTalent address as parameter
     await distributor.connect(user).distributeTokens(
       testToken.target,
+      voiceTalent.address, // voiceTalentAddress parameter
       amount,
       ethers.ZeroHash
     );
@@ -60,8 +62,9 @@ describe("TokenDistributor", function () {
 
   it("should only allow sender to view their distribution data", async function () {
     const amount = ethers.parseEther("1");
-    // User sends native tokens
+    // User sends native tokens with voiceTalent address as parameter
     const tx = await distributor.connect(user).distributeNativeTokens(
+      voiceTalent.address, // voiceTalentAddress parameter
       ethers.ZeroHash,
       { value: amount }
     );
@@ -80,7 +83,7 @@ describe("TokenDistributor", function () {
   it("should emit TokensDistributed event", async function () {
     const amount = ethers.parseEther("1");
     await expect(
-      distributor.connect(user).distributeNativeTokens(ethers.ZeroHash, { value: amount })
+      distributor.connect(user).distributeNativeTokens(voiceTalent.address, ethers.ZeroHash, { value: amount })
     ).to.emit(distributor, "TokensDistributed");
   });
 }); 

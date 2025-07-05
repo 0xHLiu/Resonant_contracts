@@ -13,8 +13,7 @@ contract TokenDistributor {
     uint256 public constant VOICE_TALENT_PERCENTAGE = 9000; // 90%
     uint256 public constant PROTOCOL_PERCENTAGE = 1000;     // 10%
     
-    // Addresses for distribution
-    address public immutable voiceTalentAddress;
+    // Protocol address is immutable, set at deployment
     address public immutable protocolAddress;
     
     // Events
@@ -50,24 +49,15 @@ contract TokenDistributor {
     bytes32[] private _distributionIds;
     
     /**
-     * @dev Constructor sets the distribution addresses
-     * @param _voiceTalentAddress Address to receive 90% of tokens
-     * @param _protocolAddress Address to receive 10% of tokens
+     * @dev Constructor sets the protocol address
+     * @param _protocolAddress The protocol address to receive 10% of tokens
      */
-    constructor(
-        address _voiceTalentAddress,
-        address _protocolAddress
-    ) {
-        require(_voiceTalentAddress != address(0), "Invalid voice talent address");
+    constructor(address _protocolAddress) {
         require(_protocolAddress != address(0), "Invalid protocol address");
-        require(_voiceTalentAddress != _protocolAddress, "Addresses must be different");
-        
-        voiceTalentAddress = _voiceTalentAddress;
         protocolAddress = _protocolAddress;
-        
         emit DistributionConfigUpdated(
-            _voiceTalentAddress,
-            _protocolAddress,
+            address(0), // voiceTalentAddress will be set per function call
+            protocolAddress,
             VOICE_TALENT_PERCENTAGE,
             PROTOCOL_PERCENTAGE
         );
@@ -76,15 +66,18 @@ contract TokenDistributor {
     /**
      * @dev Distribute tokens with confidential computing
      * @param tokenAddress The ERC20 token contract address
+     * @param voiceTalentAddress The address to receive 90% of tokens
      * @param amount The total amount to distribute
      * @param confidentialId Optional confidential identifier for tracking
      */
     function distributeTokens(
         address tokenAddress,
+        address voiceTalentAddress,
         uint256 amount,
         bytes32 confidentialId
     ) external {
         require(tokenAddress != address(0), "Invalid token address");
+        require(voiceTalentAddress != address(0), "Invalid voice talent address");
         require(amount > 0, "Amount must be greater than 0");
         
         // Generate confidential ID if not provided
@@ -125,9 +118,11 @@ contract TokenDistributor {
     
     /**
      * @dev Distribute native tokens (ETH/ROSE) with confidential computing
+     * @param voiceTalentAddress The address to receive 90% of tokens
      * @param confidentialId Optional confidential identifier for tracking
      */
-    function distributeNativeTokens(bytes32 confidentialId) external payable {
+    function distributeNativeTokens(address voiceTalentAddress, bytes32 confidentialId) external payable {
+        require(voiceTalentAddress != address(0), "Invalid voice talent address");
         require(msg.value > 0, "Must send native tokens");
         
         // Generate confidential ID if not provided
@@ -270,10 +265,10 @@ contract TokenDistributor {
     }
     
     /**
-     * @dev Emergency function to recover stuck tokens (only owner)
+     * @dev Emergency function to recover stuck tokens (only protocol can call)
      */
     function emergencyRecoverTokens(address tokenAddress, address to) external {
-        require(msg.sender == voiceTalentAddress || msg.sender == protocolAddress, "Not authorized");
+        require(msg.sender == protocolAddress, "Not authorized");
         
         uint256 balance = IERC20(tokenAddress).balanceOf(address(this));
         if (balance > 0) {
@@ -282,10 +277,10 @@ contract TokenDistributor {
     }
     
     /**
-     * @dev Emergency function to recover stuck native tokens (only authorized addresses)
+     * @dev Emergency function to recover stuck native tokens (only protocol can call)
      */
     function emergencyRecoverNative(address to) external {
-        require(msg.sender == voiceTalentAddress || msg.sender == protocolAddress, "Not authorized");
+        require(msg.sender == protocolAddress, "Not authorized");
         
         uint256 balance = address(this).balance;
         if (balance > 0) {

@@ -1,15 +1,13 @@
 import { task } from "hardhat/config";
 
 task("deploy-token-distributor")
-  .addParam("voiceTalent", "Voice talent address")
   .addParam("protocol", "Protocol address")
   .setAction(async (args, hre) => {
     const TokenDistributor = await hre.ethers.getContractFactory("TokenDistributor");
-    const distributor = await TokenDistributor.deploy(args.voiceTalent, args.protocol);
+    const distributor = await TokenDistributor.deploy(args.protocol);
     const distributorAddr = await distributor.waitForDeployment();
 
     console.log(`TokenDistributor deployed to: ${distributorAddr.target}`);
-    console.log(`Voice Talent Address: ${args.voiceTalent}`);
     console.log(`Protocol Address: ${args.protocol}`);
     
     return distributorAddr.target;
@@ -18,6 +16,7 @@ task("deploy-token-distributor")
 task("distribute-tokens")
   .addParam("address", "TokenDistributor contract address")
   .addParam("token", "ERC20 token address")
+  .addParam("voiceTalent", "Voice talent address")
   .addParam("amount", "Amount to distribute")
   .addOptionalParam("confidentialId", "Optional confidential ID")
   .setAction(async (args, hre) => {
@@ -31,7 +30,7 @@ task("distribute-tokens")
     
     // Distribute tokens
     const confidentialId = args.confidentialId || "0x0000000000000000000000000000000000000000000000000000000000000000";
-    const tx = await distributor.distributeTokens(args.token, args.amount, confidentialId);
+    const tx = await distributor.distributeTokens(args.token, args.voiceTalent, args.amount, confidentialId);
     console.log(`Distribution transaction: ${tx.hash}`);
     await tx.wait();
     console.log("Distribution completed!");
@@ -39,13 +38,14 @@ task("distribute-tokens")
 
 task("distribute-native")
   .addParam("address", "TokenDistributor contract address")
+  .addParam("voiceTalent", "Voice talent address")
   .addParam("amount", "Amount in ROSE to distribute")
   .addOptionalParam("confidentialId", "Optional confidential ID")
   .setAction(async (args, hre) => {
     const distributor = await hre.ethers.getContractAt("TokenDistributor", args.address);
     
     const confidentialId = args.confidentialId || "0x0000000000000000000000000000000000000000000000000000000000000000";
-    const tx = await distributor.distributeNativeTokens(confidentialId, { value: args.amount });
+    const tx = await distributor.distributeNativeTokens(args.voiceTalent, confidentialId, { value: args.amount });
     console.log(`Native distribution transaction: ${tx.hash}`);
     await tx.wait();
     console.log("Native distribution completed!");
@@ -102,15 +102,13 @@ task("full-token-distribution")
     await hre.run("compile");
 
     console.log("Deploying TokenDistributor...");
-    const address = await hre.run("deploy-token-distributor", { 
-      voiceTalent: args.voiceTalent, 
-      protocol: args.protocol 
-    });
+    const address = await hre.run("deploy-token-distributor", { protocol: args.protocol });
 
     console.log("Distributing tokens...");
     await hre.run("distribute-tokens", { 
       address, 
-      token: args.token, 
+      token: args.token,
+      voiceTalent: args.voiceTalent,
       amount: args.amount 
     });
 
